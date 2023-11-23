@@ -125,7 +125,8 @@ h3 {
   cursor: pointer;
   text-align: center;
   appearance: button;
-  display: flex;
+  /* display: flex; */ 
+  margin: 10px 10px 10px 10px;
   align-items: center;
   justify-content: center;
 }

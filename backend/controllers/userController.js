@@ -73,6 +73,7 @@ const loginUser = asyncHandler(async (req, res) => {
 // @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
     const { _id, userType, name, email } = await User.findById(req.user.id)
+    console.log(userType)
     res.status(200).json({
         _id,
         name,
@@ -85,23 +86,81 @@ const getUserProfile = asyncHandler(async (req, res) => {
 // @route  POST /api/users/cart
 // @access Private
 const addToCart = asyncHandler(async (req, res) => {
-    const { productId } = req.body
-    const product = Product.findById(productId)
+    const { productId} = req.body
+    const product = await Product.findById(productId)
+    console.log(product.productId)
     if (!product) {
         res.status(404)
         throw new Error("Product not found")
     }
 
-
-    req.user.carts.push({
-        productId: productId,
-        quantity: 1,
-    });
-
+    const productExistInCart = req.user.carts.find((item) => item.productId.toString() == productId.toString())
+    if (!productExistInCart) {
+        req.user.carts.push({
+          productId: productId,
+          quantity: 1,
+          price: product.price,
+        });    
+    } else {
+        req.user.carts = req.user.carts.map((item) =>
+            item.productId.toString() == productId.toString()
+                ? { ...item, quantity: item.quantity + 1, price: product.price*(item.quantity+1) }
+                : item
+        );
+    }
      await req.user.save();
      console.log(req.user.carts)
      res.status(200).json({ message: "Product added to cart" });
     
+})
+
+//@desc Get Cart items
+//@route GET /api/users/cart
+//@access Private
+const getCartItems = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+    const products = await Product.find({});
+    const cartItems = [];
+    user.carts.forEach((item,index) => {
+        const product = products.find((prod) => prod._id.toString() == item.productId.toString());
+        cartItems.push({
+            name: product.name,
+            image: product.image,
+            price: item.price,
+            quantity: item.quantity,
+            productId: product._id,
+        });
+    }
+    );
+    res.status(200).json(cartItems);
+})
+
+//@desc Update cart items
+//@route PUT /api/users/cart
+//@access Private
+const updateCartItems = asyncHandler(async (req, res) => {
+    const { productId, quantity } = req.body;
+    const user = await User.findById(req.user.id);
+    const product = await Product.findById(productId);
+    const cartItem = user.carts.find((item) => item.productId.toString() == productId.toString());
+    if (!cartItem) {
+        return res.status(404).json({ message: "Product not found in cart" });
+    }
+    if (quantity == 0) {
+        user.carts = user.carts.filter(
+            (item) => item.productId.toString() != productId.toString()
+        );
+        await user.save();
+        return res.status(200).json({ message: "Product removed from cart" });
+    }
+    user.carts = user.carts.map((item) =>
+        item.productId.toString() == productId.toString()
+        ? { ...item, quantity: quantity , price: product.price*quantity}
+        : item
+        );
+    // console.log(user.carts)
+    await user.save();
+    res.status(200).json({ message: "Cart updated" });
 })
 
 const generateToken = (id) => {
@@ -114,5 +173,7 @@ module.exports = {
     registerUser,
     loginUser,
     getUserProfile,
-    addToCart
+    addToCart,
+    getCartItems,
+    updateCartItems
 }

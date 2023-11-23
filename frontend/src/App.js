@@ -11,6 +11,8 @@ import Login from './pages/Login';
 import AddProduct from './pages/AddProducts';
 import SellerInventory from './pages/SellerInventory';
 import Modal from 'react-modal';
+import Cart from './pages/Cart'
+import { AuthProvider } from './components/AuthContext';
 
 
 Modal.setAppElement('#root');
@@ -18,6 +20,7 @@ Modal.setAppElement('#root');
 function App() {
   return (
     <>
+      <AuthProvider>
       <Container>
         {/* <NavbarComponent /> */}
         <BrowserRouter>
@@ -32,9 +35,11 @@ function App() {
             <Route path="/addProduct" element={<AddProduct />} />
             <Route path="/sellerInventory" element={<SellerInventory />} />
             <Route path="/store" element={<Store />} />
+            <Route path="/cart" element={<Cart />} />
           </Routes>
         </BrowserRouter>
       </Container>
+      </AuthProvider>
     </>
   );
 }

@@ -138,7 +138,7 @@
     width: 150px;
     height: auto;
     border-radius: 4px;
-    margin-right: 20px;
+    margin-right: 5px;
 }
 
 .product-details {
@@ -163,3 +163,17 @@
 }
 
 
+.icon-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px; /* Adjust the font size as needed */
+}
+
+.delete-icon {
+    cursor: pointer;
+}
+
+.payment-icon {
+    cursor: pointer;
+}
