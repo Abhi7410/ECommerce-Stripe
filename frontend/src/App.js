@@ -14,7 +14,6 @@ import Modal from 'react-modal';
 import Cart from './pages/Cart'
 import { AuthProvider } from './components/AuthContext';
 
-
 Modal.setAppElement('#root');
 
 function App() {
@@ -36,6 +35,7 @@ function App() {
             <Route path="/sellerInventory" element={<SellerInventory />} />
             <Route path="/store" element={<Store />} />
             <Route path="/cart" element={<Cart />} />
+            
           </Routes>
         </BrowserRouter>
       </Container>

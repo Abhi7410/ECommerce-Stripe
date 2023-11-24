@@ -61,7 +61,7 @@ function NavbarComponent() {
         ) : (
           // If the user is not authenticated (logged out)
           <>
-            {/* <li>
+            <li>
               <Link to="/register">
                 <FaSignInAlt />
                 Register
@@ -72,7 +72,7 @@ function NavbarComponent() {
                 <FaSignInAlt />
                 Login
               </Link>
-            </li> */}
+            </li>
           </>
         )}
       </ul>

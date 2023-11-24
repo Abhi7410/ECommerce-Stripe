@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../styles/productsStyles.css';
+import {loadStripe} from '@stripe/stripe-js';
 import QuantityControl from '../components/QuantityControl';
 import { MdDeleteForever, MdOutlinePayment } from 'react-icons/md';
+import '../styles/productsStyles.css';
 
 const baseURL = 'http://localhost:5000/api/users'; // Update with your API endpoint
+const paymentURL = 'http://localhost:5000/api/payment'; // Update with your API endpoint
 
 const Cart = () => {
     const [cartItems, setCartItems] = useState([]);
@@ -28,6 +30,7 @@ const Cart = () => {
             });
     };
 
+
     const updateCartItemQuantity = (productId, newQuantity) => {
         const userAuthToken = localStorage.getItem('authToken');
         axios.put(
@@ -47,6 +50,36 @@ const Cart = () => {
             });
     };
 
+
+    const checkoutStripe = async (productId) => {
+        const userAuthToken = localStorage.getItem('authToken');
+        try {
+            const response = await axios.post(
+                `${paymentURL}/checkout`,
+                { productId },
+                {
+                    headers: {
+                        Authorization: `Bearer ${userAuthToken}`,
+                    },
+                }
+            );
+            const { success, checkoutURL, sessionId } = response.data;
+            if (success) {
+                window.location.href = checkoutURL;
+            }
+            else {
+                const stripe = await loadStripe(process.env.PUBLISHABLE_KEY);
+                const { error } = await stripe.redirectToCheckout({ sessionId });
+                console.error('Error redirecting to checkout:', error);
+            }
+
+        }
+        catch (error) {
+            console.error('Error checking out:', error);
+        }
+
+    };
+
     return (
         <div className="store-container">
             <h1>My Cart</h1>
@@ -64,7 +97,9 @@ const Cart = () => {
                                     className="delete-icon"
                                     onClick={() => updateCartItemQuantity(product.productId, 0)}
                                 />
-                                <MdOutlinePayment className="payment-icon" />
+                                <MdOutlinePayment className="payment-icon"
+                                    onClick={() => checkoutStripe(product.productId)}
+                                />
                             </div>
                         </div>
                         
